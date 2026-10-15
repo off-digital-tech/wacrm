@@ -19,6 +19,8 @@ export const THEME_IDS = [
   "cobalt",
   "amber",
   "rose",
+  // Off Digital: free-form hex accent, see src/lib/custom-theme.ts.
+  "custom",
 ] as const;
 
 export type ThemeId = (typeof THEME_IDS)[number];
@@ -96,6 +98,13 @@ export const THEMES: ReadonlyArray<ThemeMeta> = [
     name: "Rose",
     tagline: "Bold and modern — D2C, creator-economy, lifestyle.",
     swatch: "oklch(0.645 0.22 16)",
+  },
+  {
+    id: "custom",
+    name: "Custom",
+    tagline: "Your own color — any hex value.",
+    // Placeholder; the picker shows the user's stored color instead.
+    swatch: "#efc124",
   },
 ];
 

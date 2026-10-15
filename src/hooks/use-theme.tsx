@@ -19,6 +19,15 @@ import {
   type Mode,
   type ThemeId,
 } from "@/lib/themes";
+import {
+  CUSTOM_COLOR_STORAGE_KEY,
+  CUSTOM_THEME_ID,
+  CUSTOM_VARS_STORAGE_KEY,
+  DEFAULT_CUSTOM_COLOR,
+  applyCustomThemeVars,
+  customThemeVars,
+  normalizeHex,
+} from "@/lib/custom-theme";
 
 /**
  * ThemeProvider — wraps the whole app, owns the two theming axes:
@@ -43,6 +52,9 @@ interface ThemeContextValue {
   mode: Mode;
   setMode: (next: Mode) => void;
   toggleMode: () => void;
+  /** Hex used by the "custom" accent (Off Digital addition). */
+  customColor: string;
+  setCustomColor: (hex: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -76,14 +88,62 @@ function readInitialMode(): Mode {
   return DEFAULT_MODE;
 }
 
+function readInitialCustomColor(): string {
+  if (typeof window === "undefined") return DEFAULT_CUSTOM_COLOR;
+  try {
+    return (
+      normalizeHex(localStorage.getItem(CUSTOM_COLOR_STORAGE_KEY) ?? "") ??
+      DEFAULT_CUSTOM_COLOR
+    );
+  } catch {
+    return DEFAULT_CUSTOM_COLOR;
+  }
+}
+
+function persistCustomColor(hex: string) {
+  try {
+    localStorage.setItem(CUSTOM_COLOR_STORAGE_KEY, hex);
+    localStorage.setItem(
+      CUSTOM_VARS_STORAGE_KEY,
+      JSON.stringify(customThemeVars(hex)),
+    );
+  } catch {
+    // Private-browsing edge case; in-memory state still applies.
+  }
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeId>(readInitialTheme);
   const [mode, setModeState] = useState<Mode>(readInitialMode);
+  const [customColor, setCustomColorState] = useState<string>(
+    readInitialCustomColor,
+  );
+
+  // Inline custom-accent tokens on <html> must follow the active theme:
+  // present only while "custom" is selected, cleared otherwise so the
+  // built-in data-theme blocks win again.
+  useEffect(() => {
+    applyCustomThemeVars(
+      document.documentElement,
+      theme === CUSTOM_THEME_ID ? customColor : null,
+    );
+  }, [theme, customColor]);
+
+  const setCustomColor = useCallback((hex: string) => {
+    const next = normalizeHex(hex);
+    if (!next) return;
+    setCustomColorState(next);
+    persistCustomColor(next);
+  }, []);
 
   const setTheme = useCallback((next: ThemeId) => {
     setThemeState(next);
     if (typeof document !== "undefined") {
       document.documentElement.dataset.theme = next;
+    }
+    if (next === CUSTOM_THEME_ID) {
+      // Make sure the boot script has a token map to replay next load.
+      persistCustomColor(readInitialCustomColor());
     }
     try {
       localStorage.setItem(STORAGE_KEY, next);
@@ -120,6 +180,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         }
         return;
       }
+      if (e.key === CUSTOM_COLOR_STORAGE_KEY) {
+        const hex = normalizeHex(e.newValue ?? "");
+        if (hex) setCustomColorState(hex);
+        return;
+      }
       if (e.key === MODE_STORAGE_KEY) {
         if (isMode(e.newValue) && e.newValue !== mode) {
           setModeState(e.newValue);
@@ -132,7 +197,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme, mode]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, mode, setMode, toggleMode }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme,
+        mode,
+        setMode,
+        toggleMode,
+        customColor,
+        setCustomColor,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -150,6 +225,8 @@ export function useTheme(): ThemeContextValue {
       mode: DEFAULT_MODE,
       setMode: () => {},
       toggleMode: () => {},
+      customColor: DEFAULT_CUSTOM_COLOR,
+      setCustomColor: () => {},
     };
   }
   return ctx;

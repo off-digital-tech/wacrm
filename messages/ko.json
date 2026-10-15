@@ -1852,7 +1852,11 @@
       "active": "사용 중",
       "accentColor": "강조 색상",
       "useTheme": "{name} 테마 사용",
-      "themeId": "테마 ID: {id}"
+      "themeId": "테마 ID: {id}",
+      "customName": "사용자 지정",
+      "customPick": "색상 선택",
+      "customHex": "16진수 색상",
+      "customHint": "Hex 입력 또는 원 클릭"
     },
     "security": {
       "title": "로그인 & 보안",

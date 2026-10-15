@@ -14,6 +14,8 @@ import {
   STORAGE_KEY,
   THEME_IDS,
 } from "@/lib/themes";
+import { CUSTOM_THEME_BOOT_JS } from "@/lib/custom-theme";
+import { BRAND } from "@/brand";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -30,15 +32,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const metadata: Metadata = {
   title: {
-    default: "wacrm",
-    template: "%s — wacrm",
+    default: BRAND.name,
+    template: `%s — ${BRAND.shortName}`,
   },
   robots: {
     index: false,
     follow: false,
   },
   icons: {
-    icon: [{ url: "/icon" }],
+    icon: [{ url: BRAND.favicon, type: "image/png" }],
+    apple: [{ url: BRAND.appleIcon }],
   },
   formatDetection: {
     email: false,
@@ -71,6 +74,7 @@ const THEME_BOOT_SCRIPT = `
     var THEMES = ${JSON.stringify(THEME_IDS)};
     var savedTheme = localStorage.getItem(THEME_KEY);
     d.dataset.theme = THEMES.indexOf(savedTheme) !== -1 ? savedTheme : THEME_DEFAULT;
+${CUSTOM_THEME_BOOT_JS}
 
     var MODE_KEY = ${JSON.stringify(MODE_STORAGE_KEY)};
     var MODE_DEFAULT = ${JSON.stringify(DEFAULT_MODE)};

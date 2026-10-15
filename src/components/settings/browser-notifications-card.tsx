@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND } from '@/brand';
 import { useState, useSyncExternalStore } from 'react';
 import { Bell, BellRing, CircleAlert, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -88,7 +89,7 @@ export function BrowserNotificationsCard({ className }: { className?: string }) 
     try {
       new Notification(t('testTitle'), {
         body: t('testBody'),
-        icon: '/icon',
+        icon: BRAND.favicon,
         tag: 'wacrm-test-notification',
       });
     } catch {

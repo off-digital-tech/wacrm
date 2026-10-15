@@ -27,6 +27,8 @@ import {
   Zap,
 } from "lucide-react";
 import type { AccountRole } from "@/lib/auth/roles";
+import { BRAND } from "@/brand";
+import { BrandMark } from "@/components/brand/brand-mark";
 
 // Per-role chip metadata used in the sidebar's account strip + the
 // Members tab roster. Keeping this near both consumers in a single
@@ -188,11 +190,16 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             close button is hidden since the sidebar is always-visible. */}
         <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <MessageSquare className="h-4 w-4" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <BrandMark className="h-4 w-6" />
             </div>
-            <span className="text-sm font-semibold text-foreground">
-              {t("title")}
+            <span className="flex flex-col leading-tight">
+              <span className="text-sm font-semibold text-foreground">
+                {BRAND.shortName}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {BRAND.productLine}
+              </span>
             </span>
           </Link>
           <button

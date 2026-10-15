@@ -1852,7 +1852,11 @@
       "active": "Active",
       "accentColor": "Accent color",
       "useTheme": "Use {name} theme",
-      "themeId": "Theme id: {id}"
+      "themeId": "Theme id: {id}",
+      "customName": "Custom",
+      "customPick": "Pick a color",
+      "customHex": "Hex color",
+      "customHint": "Hex, or tap the circle"
     },
     "security": {
       "title": "Login & security",
